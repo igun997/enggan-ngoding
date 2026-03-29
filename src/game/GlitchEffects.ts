@@ -1,4 +1,4 @@
-import { Container, ColorMatrixFilter, NoiseFilter } from 'pixi.js';
+import { Container, ColorMatrixFilter, NoiseFilter } from "pixi.js";
 
 export function applyGlitch(container: Container, intensity: number = 1) {
   const colorMatrix = new ColorMatrixFilter();

@@ -1,5 +1,5 @@
-import { Action, HallucinationOption, KeywordEntry, Level } from '../types';
-import { matchKeywords, tokenize } from './PromptParser';
+import { Action, HallucinationOption, KeywordEntry, Level } from "../types";
+import { matchKeywords, tokenize } from "./PromptParser";
 
 const BASE_HALLUCINATION_RATE = 0.3;
 const EXTRA_WORD_PENALTY = 0.05;
@@ -10,7 +10,7 @@ const MAX_HALLUCINATION_RATE = 0.8;
 
 function calculateHallucinationRate(
   tokenCount: number,
-  coffee: number
+  coffee: number,
 ): number {
   let rate = BASE_HALLUCINATION_RATE;
   const extraWords = Math.max(0, tokenCount - MINIMUM_WORDS);
@@ -35,8 +35,8 @@ function pickWeightedRandom(options: HallucinationOption[]): Action {
 
 function mergeCorrectActions(matched: KeywordEntry[]): Action {
   const base: Action = {
-    action: 'move',
-    direction: 'right',
+    action: "move",
+    direction: "right",
     speed: 1,
     hallucinated: false,
     flavor: 'AI: "Oke, aku paham. Mengerjakan sekarang..."',
@@ -56,7 +56,7 @@ function mergeCorrectActions(matched: KeywordEntry[]): Action {
 export function processPrompt(
   input: string,
   level: Level,
-  coffee: number
+  coffee: number,
 ): Action {
   const tokens = tokenize(input);
   const matched = matchKeywords(tokens, level.keywordEntries);

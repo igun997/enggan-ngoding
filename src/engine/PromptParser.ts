@@ -1,16 +1,16 @@
-import { KeywordEntry } from '../types';
+import { KeywordEntry } from "../types";
 
 export function tokenize(input: string): string[] {
   return input
     .toLowerCase()
-    .replace(/[^a-zA-Z0-9\s]/g, '')
+    .replace(/[^a-zA-Z0-9\s]/g, "")
     .split(/\s+/)
     .filter((t) => t.length > 0);
 }
 
 export function matchKeywords(
   tokens: string[],
-  entries: KeywordEntry[]
+  entries: KeywordEntry[],
 ): KeywordEntry[] {
   const matched: KeywordEntry[] = [];
   for (const entry of entries) {

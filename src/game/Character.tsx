@@ -1,7 +1,7 @@
-import { useRef, useEffect, useState } from 'react';
-import { extend, useTick } from '@pixi/react';
-import { Assets, Sprite, Texture } from 'pixi.js';
-import { Action } from '../types';
+import { useRef, useEffect, useState } from "react";
+import { extend, useTick } from "@pixi/react";
+import { Assets, Sprite, Texture } from "pixi.js";
+import { Action } from "../types";
 
 extend({ Sprite });
 
@@ -24,28 +24,32 @@ export default function Character({
   const [idleTexture, setIdleTexture] = useState(Texture.EMPTY);
   const [walkTexture, setWalkTexture] = useState(Texture.EMPTY);
   const [isMoving, setIsMoving] = useState(false);
-  const moveTargetRef = useRef<{ direction: string; speed: number; framesLeft: number } | null>(null);
+  const moveTargetRef = useRef<{
+    direction: string;
+    speed: number;
+    framesLeft: number;
+  } | null>(null);
   const specialRef = useRef<{ effect: string; frame: number } | null>(null);
 
   useEffect(() => {
-    Assets.load('/assets/character-idle.png').then(setIdleTexture);
-    Assets.load('/assets/character-walk.png').then(setWalkTexture);
+    Assets.load("/assets/character-idle.png").then(setIdleTexture);
+    Assets.load("/assets/character-walk.png").then(setWalkTexture);
   }, []);
 
   // Handle new actions
   useEffect(() => {
     if (!action) return;
 
-    if (action.action === 'move') {
-      const dir = action.direction ?? 'right';
+    if (action.action === "move") {
+      const dir = action.direction ?? "right";
       const speed = action.speed ?? 1;
       const duration = speed >= 100 ? 5 : 60; // flyoff is fast
 
       moveTargetRef.current = { direction: dir, speed, framesLeft: duration };
       setIsMoving(true);
-    } else if (action.action === 'confused') {
+    } else if (action.action === "confused") {
       onActionComplete();
-    } else if (action.action === 'idle' && action.specialEffect) {
+    } else if (action.action === "idle" && action.specialEffect) {
       specialRef.current = { effect: action.specialEffect, frame: 0 };
       setIsMoving(false);
     }
@@ -60,7 +64,7 @@ export default function Character({
       const { effect, frame } = specialRef.current;
       specialRef.current.frame++;
 
-      if (effect === 'vibrate') {
+      if (effect === "vibrate") {
         sprite.x = x * 10 + (Math.random() - 0.5) * 6;
         if (frame > 60) {
           specialRef.current = null;
@@ -69,7 +73,7 @@ export default function Character({
         return;
       }
 
-      if (effect === 'spin') {
+      if (effect === "spin") {
         sprite.rotation += 0.2 * ticker.deltaTime;
         if (frame > 60) {
           sprite.rotation = 0;
@@ -79,7 +83,7 @@ export default function Character({
         return;
       }
 
-      if (effect === 'flip') {
+      if (effect === "flip") {
         sprite.scale.y = -1;
         if (frame > 60) {
           sprite.scale.y = 1;
@@ -99,20 +103,20 @@ export default function Character({
       let dy = 0;
 
       switch (direction) {
-        case 'right':
+        case "right":
           dx = moveAmount;
           break;
-        case 'left':
+        case "left":
           dx = -moveAmount;
           sprite.scale.x = -1;
           break;
-        case 'up':
+        case "up":
           dy = -moveAmount * 10;
           break;
-        case 'down':
+        case "down":
           dy = moveAmount * 10;
           break;
-        case 'random':
+        case "random":
           dx = (Math.random() - 0.5) * moveAmount * 2;
           dy = (Math.random() - 0.5) * moveAmount * 5;
           break;

@@ -1,23 +1,23 @@
-export type Screen = 'menu' | 'briefing' | 'playing' | 'result';
-export type ResultType = 'win' | 'lose-coffee' | 'lose-time' | null;
+export type Screen = "menu" | "briefing" | "playing" | "result";
+export type ResultType = "win" | "lose-coffee" | "lose-time" | null;
 
 export type TerminalEntry = {
   id: number;
-  type: 'player' | 'ai' | 'error' | 'system';
+  type: "player" | "ai" | "error" | "system";
   text: string;
 };
 
 export type SpecialEffect =
-  | 'moonwalk'
-  | 'vibrate'
-  | 'spin'
-  | 'flip'
-  | 'flyoff'
-  | 'flag-runs';
+  | "moonwalk"
+  | "vibrate"
+  | "spin"
+  | "flip"
+  | "flyoff"
+  | "flag-runs";
 
 export type Action = {
-  action: 'move' | 'idle' | 'confused';
-  direction?: 'left' | 'right' | 'up' | 'down' | 'random';
+  action: "move" | "idle" | "confused";
+  direction?: "left" | "right" | "up" | "down" | "random";
   speed?: number;
   hallucinated: boolean;
   flavor: string;
@@ -60,15 +60,15 @@ export type GameState = {
 };
 
 export type GameAction =
-  | { type: 'START_GAME' }
-  | { type: 'ACCEPT_TICKET' }
-  | { type: 'SUBMIT_PROMPT'; action: Action; coffeeCost: number }
-  | { type: 'SET_PROCESSING'; isProcessing: boolean }
-  | { type: 'ADD_TERMINAL'; entry: Omit<TerminalEntry, 'id'> }
-  | { type: 'EXECUTE_ACTION'; action: Action }
-  | { type: 'TICK_TIMER' }
-  | { type: 'UPDATE_CHARACTER_X'; x: number }
-  | { type: 'CHECK_WIN' }
-  | { type: 'SET_RESULT'; result: ResultType }
-  | { type: 'RETRY' }
-  | { type: 'BACK_TO_MENU' };
+  | { type: "START_GAME" }
+  | { type: "ACCEPT_TICKET" }
+  | { type: "SUBMIT_PROMPT"; action: Action; coffeeCost: number }
+  | { type: "SET_PROCESSING"; isProcessing: boolean }
+  | { type: "ADD_TERMINAL"; entry: Omit<TerminalEntry, "id"> }
+  | { type: "EXECUTE_ACTION"; action: Action }
+  | { type: "TICK_TIMER" }
+  | { type: "UPDATE_CHARACTER_X"; x: number }
+  | { type: "CHECK_WIN" }
+  | { type: "SET_RESULT"; result: ResultType }
+  | { type: "RETRY" }
+  | { type: "BACK_TO_MENU" };

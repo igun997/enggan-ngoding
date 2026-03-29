@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Application, extend } from '@pixi/react';
-import { Container, Sprite, Texture, Assets } from 'pixi.js';
-import { Action } from '../types';
-import Character from './Character';
-import { applyGlitch } from './GlitchEffects';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Application, extend } from "@pixi/react";
+import { Container, Sprite, Texture, Assets } from "pixi.js";
+import { Action } from "../types";
+import Character from "./Character";
+import { applyGlitch } from "./GlitchEffects";
 
 extend({ Container, Sprite });
 
@@ -29,8 +29,8 @@ function GameScene({
   const flagOffsetRef = useRef(0);
 
   useEffect(() => {
-    Assets.load('/assets/flag.png').then(setFlagTexture);
-    Assets.load('/assets/ground.png').then(setGroundTexture);
+    Assets.load("/assets/flag.png").then(setFlagTexture);
+    Assets.load("/assets/ground.png").then(setGroundTexture);
   }, []);
 
   // Trigger glitch on hallucination
@@ -42,7 +42,7 @@ function GameScene({
 
   // Handle flag-runs special effect
   useEffect(() => {
-    if (currentAction?.specialEffect === 'flag-runs' && flagSpriteRef.current) {
+    if (currentAction?.specialEffect === "flag-runs" && flagSpriteRef.current) {
       flagOffsetRef.current += 50;
     }
   }, [currentAction]);

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { TerminalEntry } from '../types';
+import { useEffect, useRef, useState } from "react";
+import { TerminalEntry } from "../types";
 
 type TerminalProps = {
   log: TerminalEntry[];
@@ -7,21 +7,25 @@ type TerminalProps = {
   isProcessing: boolean;
 };
 
-export default function Terminal({ log, onSubmit, isProcessing }: TerminalProps) {
-  const [input, setInput] = useState('');
+export default function Terminal({
+  log,
+  onSubmit,
+  isProcessing,
+}: TerminalProps) {
+  const [input, setInput] = useState("");
   const logEndRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const [glitching, setGlitching] = useState(false);
 
   // Auto-scroll to bottom
   useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    logEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [log]);
 
   // Trigger glitch on error entries
   useEffect(() => {
     const lastEntry = log[log.length - 1];
-    if (lastEntry?.type === 'error') {
+    if (lastEntry?.type === "error") {
       setGlitching(true);
       setTimeout(() => setGlitching(false), 300);
     }
@@ -32,12 +36,12 @@ export default function Terminal({ log, onSubmit, isProcessing }: TerminalProps)
     const trimmed = input.trim();
     if (!trimmed || isProcessing) return;
     onSubmit(trimmed);
-    setInput('');
+    setInput("");
   };
 
   return (
     <div
-      className={`terminal ${glitching ? 'terminal-glitch' : ''}`}
+      className={`terminal ${glitching ? "terminal-glitch" : ""}`}
       ref={terminalRef}
     >
       <div className="terminal-log">
@@ -54,7 +58,9 @@ export default function Terminal({ log, onSubmit, isProcessing }: TerminalProps)
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={isProcessing ? 'AI sedang berpikir...' : 'ketik prompt...'}
+          placeholder={
+            isProcessing ? "AI sedang berpikir..." : "ketik prompt..."
+          }
           disabled={isProcessing}
           autoFocus
         />
