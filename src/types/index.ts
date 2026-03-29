@@ -1,74 +1,43 @@
-export type Screen = "menu" | "briefing" | "playing" | "result";
-export type ResultType = "win" | "lose-coffee" | "lose-time" | null;
+export type Screen = "menu" | "briefing" | "task" | "punishment" | "result";
+export type ResultType = "win" | "fired" | null;
+export type PunishmentNPC = "ohim" | "aris" | "alif";
+export type TaskType = "code-fix" | "terminal";
 
-export type TerminalEntry = {
-  id: number;
-  type: "player" | "ai" | "error" | "system";
+export type TaskOption = {
   text: string;
+  correct: boolean;
 };
 
-export type SpecialEffect =
-  | "moonwalk"
-  | "vibrate"
-  | "spin"
-  | "flip"
-  | "flyoff"
-  | "flag-runs";
-
-export type Action = {
-  action: "move" | "idle" | "confused";
-  direction?: "left" | "right" | "up" | "down" | "random";
-  speed?: number;
-  hallucinated: boolean;
-  flavor: string;
-  specialEffect?: SpecialEffect;
-};
-
-export type HallucinationOption = {
-  action: Action;
-  weight: number;
-};
-
-export type KeywordEntry = {
-  keywords: string[];
-  category: string;
-  correctAction: Partial<Action>;
-  hallucinations: HallucinationOption[];
-};
-
-export type Level = {
+export type TaskDef = {
   id: number;
+  type: TaskType;
   title: string;
-  objective: string;
-  ohimMessage: string;
-  timerSeconds: number;
-  coffeeCost: number;
-  keywordEntries: KeywordEntry[];
-  defaultAction: Action;
+  scene: {
+    npcsPresent: PunishmentNPC[];
+  };
+  code?: string;
+  prompt?: string;
+  options?: TaskOption[];
+  correctAnswer?: string;
+  onFail: {
+    npc: PunishmentNPC;
+    dialog: string;
+  };
 };
 
 export type GameState = {
   screen: Screen;
-  coffee: number;
-  timeLeft: number;
-  terminalLog: TerminalEntry[];
-  currentAction: Action | null;
+  currentTask: number;
+  failures: number;
+  taskResults: boolean[];
   result: ResultType;
-  isProcessing: boolean;
-  characterX: number;
-  flagX: number;
+  punishmentNPC: PunishmentNPC | null;
 };
 
 export type GameAction =
   | { type: "START_GAME" }
   | { type: "ACCEPT_TICKET" }
-  | { type: "SUBMIT_PROMPT"; action: Action; coffeeCost: number }
-  | { type: "SET_PROCESSING"; isProcessing: boolean }
-  | { type: "ADD_TERMINAL"; entry: Omit<TerminalEntry, "id"> }
-  | { type: "EXECUTE_ACTION"; action: Action }
-  | { type: "TICK_TIMER" }
-  | { type: "UPDATE_CHARACTER_X"; x: number }
-  | { type: "CHECK_WIN" }
-  | { type: "SET_RESULT"; result: ResultType }
+  | { type: "SUBMIT_ANSWER"; correct: boolean }
+  | { type: "PUNISHMENT_DONE" }
   | { type: "RETRY" }
   | { type: "BACK_TO_MENU" };
