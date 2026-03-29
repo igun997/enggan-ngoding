@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { extend } from "@pixi/react";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import { PunishmentNPC } from "../types";
+import { asset } from "../assetPath";
 import SpriteAnimation from "./SpriteAnimation";
 
 extend({ Container, Graphics, Text });
@@ -15,16 +16,16 @@ type PunishmentSceneProps = {
 
 const NPC_SHEETS: Record<string, { json: string; image: string }> = {
   ohim: {
-    json: "/assets/ohim-spritesheet.json",
-    image: "/assets/ohim-spritesheet.png",
+    json: asset("assets/ohim-spritesheet.json"),
+    image: asset("assets/ohim-spritesheet.png"),
   },
   aris: {
-    json: "/assets/mang-aris-spritesheet.json",
-    image: "/assets/mang-aris-spritesheet.png",
+    json: asset("assets/mang-aris-spritesheet.json"),
+    image: asset("assets/mang-aris-spritesheet.png"),
   },
   alif: {
-    json: "/assets/mang-alif-spritesheet.json",
-    image: "/assets/mang-alif-spritesheet.png",
+    json: asset("assets/mang-alif-spritesheet.json"),
+    image: asset("assets/mang-alif-spritesheet.png"),
   },
 };
 

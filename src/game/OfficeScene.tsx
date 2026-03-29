@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { extend } from "@pixi/react";
 import { Container, Graphics, Sprite, Texture, Assets } from "pixi.js";
 import { PunishmentNPC, OfficePhase } from "../types";
+import { asset } from "../assetPath";
 import SpriteAnimation from "./SpriteAnimation";
 import MonitorHint from "./MonitorHint";
 import ClickableObject from "./ClickableObject";
@@ -23,16 +24,16 @@ const NPC_STAND_FRAMES = ["stand"];
 
 const NPC_SHEETS: Record<string, { json: string; image: string }> = {
   ohim: {
-    json: "/assets/ohim-spritesheet.json",
-    image: "/assets/ohim-spritesheet.png",
+    json: asset("assets/ohim-spritesheet.json"),
+    image: asset("assets/ohim-spritesheet.png"),
   },
   aris: {
-    json: "/assets/mang-aris-spritesheet.json",
-    image: "/assets/mang-aris-spritesheet.png",
+    json: asset("assets/mang-aris-spritesheet.json"),
+    image: asset("assets/mang-aris-spritesheet.png"),
   },
   alif: {
-    json: "/assets/mang-alif-spritesheet.json",
-    image: "/assets/mang-alif-spritesheet.png",
+    json: asset("assets/mang-alif-spritesheet.json"),
+    image: asset("assets/mang-alif-spritesheet.png"),
   },
 };
 
@@ -43,16 +44,16 @@ const NPC_POSITIONS: Record<string, number> = {
 };
 
 const FURNITURE_ASSETS = [
-  { key: "wall", path: "/assets/wall.png" },
-  { key: "floor", path: "/assets/floor.png" },
-  { key: "desk", path: "/assets/desk.png" },
-  { key: "chair", path: "/assets/chair.png" },
-  { key: "plant", path: "/assets/plant.png" },
-  { key: "watercooler", path: "/assets/watercooler.png" },
-  { key: "whiteboard", path: "/assets/whiteboard.png" },
-  { key: "ceiling-light", path: "/assets/ceiling-light.png" },
-  { key: "monitor", path: "/assets/monitor.png" },
-  { key: "door", path: "/assets/door.png" },
+  { key: "wall", path: asset("assets/wall.png") },
+  { key: "floor", path: asset("assets/floor.png") },
+  { key: "desk", path: asset("assets/desk.png") },
+  { key: "chair", path: asset("assets/chair.png") },
+  { key: "plant", path: asset("assets/plant.png") },
+  { key: "watercooler", path: asset("assets/watercooler.png") },
+  { key: "whiteboard", path: asset("assets/whiteboard.png") },
+  { key: "ceiling-light", path: asset("assets/ceiling-light.png") },
+  { key: "monitor", path: asset("assets/monitor.png") },
+  { key: "door", path: asset("assets/door.png") },
 ];
 
 export default function OfficeScene({
@@ -278,8 +279,8 @@ export default function OfficeScene({
 
       {/* Angga */}
       <SpriteAnimation
-        sheetJson="/assets/angga-spritesheet.json"
-        sheetImage="/assets/angga-spritesheet.png"
+        sheetJson={asset("assets/angga-spritesheet.json")}
+        sheetImage={asset("assets/angga-spritesheet.png")}
         frames={isWalking ? WALK_FRAMES : IDLE_FRAMES}
         fps={isWalking ? 8 : 3}
         loop={true}
