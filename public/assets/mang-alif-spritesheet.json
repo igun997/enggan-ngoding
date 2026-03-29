@@ -1,0 +1,59 @@
+{
+  "frames": {
+    "alif-walk-1": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    },
+    "alif-walk-2": {
+      "frame": {
+        "x": 64,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    },
+    "alif-walk-3": {
+      "frame": {
+        "x": 128,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    },
+    "alif-walk-4": {
+      "frame": {
+        "x": 192,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    },
+    "alif-stand": {
+      "frame": {
+        "x": 256,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    },
+    "alif-action": {
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    }
+  },
+  "meta": {
+    "image": "mang-alif-spritesheet.png",
+    "size": {
+      "w": 384,
+      "h": 64
+    }
+  }
+}

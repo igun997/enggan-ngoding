@@ -1,0 +1,59 @@
+{
+  "frames": {
+    "aris-walk-1": {
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    },
+    "aris-walk-2": {
+      "frame": {
+        "x": 64,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    },
+    "aris-walk-3": {
+      "frame": {
+        "x": 128,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    },
+    "aris-walk-4": {
+      "frame": {
+        "x": 192,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    },
+    "aris-stand": {
+      "frame": {
+        "x": 256,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    },
+    "aris-action": {
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 64,
+        "h": 64
+      }
+    }
+  },
+  "meta": {
+    "image": "mang-aris-spritesheet.png",
+    "size": {
+      "w": 384,
+      "h": 64
+    }
+  }
+}
