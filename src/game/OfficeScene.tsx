@@ -123,7 +123,7 @@ export default function OfficeScene({
             onClick={onClickMonitor}
             enabled={isIdle}
           />
-          {isIdle && <MonitorHint hint={hint} x={290} y={190} />}
+          {isIdle && <MonitorHint hint={hint} x={180} y={10} />}
         </>
       )}
 
