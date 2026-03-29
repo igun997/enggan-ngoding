@@ -8,15 +8,11 @@ type ResultProps = {
 
 const RESULT_MESSAGES: Record<string, { text: string; className: string }> = {
   win: {
-    text: "Deploy berhasil! Angga selamat dari amukan Ohim.",
+    text: "Deploy berhasil! Angga selamat... untuk hari ini.",
     className: "win",
   },
-  "lose-coffee": {
-    text: "Kopi habis... otak AI mati. Angga ketiduran di meja.",
-    className: "lose",
-  },
-  "lose-time": {
-    text: "DEADLINE TERLEWAT. OHIM Marah besar!",
+  fired: {
+    text: "ANGGA DIPECAT! Mang Alif sudah muak dengan developer yang gabisa ngoding.",
     className: "lose",
   },
 };
