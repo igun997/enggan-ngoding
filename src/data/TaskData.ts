@@ -5,6 +5,10 @@ export const TASKS: TaskDef[] = [
     id: 1,
     type: "code-fix",
     title: "Fix Bug #1: Unreachable Code",
+    hint: `$ node hitungGaji.js
+Error: bonus is not defined
+Expected output: 75000
+Got: 50000`,
     scene: {
       npcsPresent: ["ohim"],
     },
@@ -30,6 +34,12 @@ export const TASKS: TaskDef[] = [
     id: 2,
     type: "terminal",
     title: "Deploy Emergency",
+    hint: `$ git status
+On branch feature/fix-login
+Your branch is ahead of 'origin/main' by 2 commits.
+
+$ curl https://api.prod.com/health
+503 Service Unavailable`,
     scene: {
       npcsPresent: ["ohim"],
     },
@@ -45,6 +55,11 @@ export const TASKS: TaskDef[] = [
     id: 3,
     type: "code-fix",
     title: "Fix Bug #2: Off-by-One",
+    hint: `$ node listUsers.js
+Aris
+Alif
+Ohim
+undefined`,
     scene: {
       npcsPresent: ["ohim", "aris"],
     },
