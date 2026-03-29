@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import { extend } from "@pixi/react";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
 
@@ -30,17 +30,17 @@ export default function PixiButton({
   variant = "primary",
   fontSize = 16,
 }: PixiButtonProps) {
-  const gfxRef = useRef<Graphics>(null);
   const containerRef = useRef<Container>(null);
+  const [hover, setHover] = useState(false);
   const style = STYLES[variant];
 
-  const drawButton = useCallback(
-    (g: Graphics, hover: boolean) => {
+  const draw = useCallback(
+    (g: Graphics) => {
       g.clear();
       g.roundRect(0, 0, width, height, 8);
       g.fill(hover ? style.fillHover : style.fill);
     },
-    [width, height, style],
+    [width, height, style, hover],
   );
 
   useEffect(() => {
@@ -49,12 +49,8 @@ export default function PixiButton({
     container.eventMode = "static";
     container.cursor = "pointer";
 
-    const onOver = () => {
-      if (gfxRef.current) drawButton(gfxRef.current, true);
-    };
-    const onOut = () => {
-      if (gfxRef.current) drawButton(gfxRef.current, false);
-    };
+    const onOver = () => setHover(true);
+    const onOut = () => setHover(false);
 
     container.on("pointerover", onOver);
     container.on("pointerout", onOut);
@@ -65,11 +61,7 @@ export default function PixiButton({
       container.off("pointerout", onOut);
       container.off("pointertap", onClick);
     };
-  }, [onClick, drawButton]);
-
-  useEffect(() => {
-    if (gfxRef.current) drawButton(gfxRef.current, false);
-  }, [drawButton]);
+  }, [onClick]);
 
   const textStyle = new TextStyle({
     fontFamily: "Inter, sans-serif",
@@ -80,7 +72,7 @@ export default function PixiButton({
 
   return (
     <pixiContainer ref={containerRef} x={x} y={y}>
-      <pixiGraphics ref={gfxRef} />
+      <pixiGraphics draw={draw} />
       <pixiText
         text={label}
         style={textStyle}

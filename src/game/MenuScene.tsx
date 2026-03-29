@@ -13,8 +13,7 @@ export default function MenuScene({ onStart }: MenuSceneProps) {
     fontFamily: "Inter, sans-serif",
     fontSize: 48,
     fontWeight: "700",
-    fill: [0x667eea, 0x764ba2],
-    fillGradientType: 0,
+    fill: 0x667eea,
   });
 
   const subtitleStyle = new TextStyle({

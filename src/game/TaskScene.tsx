@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { extend } from "@pixi/react";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import { TaskDef } from "../types";
@@ -15,6 +15,33 @@ type TaskSceneProps = {
   onAnswer: (correct: boolean) => void;
 };
 
+function Dot({
+  index,
+  current,
+  resultsLength,
+}: {
+  index: number;
+  current: number;
+  resultsLength: number;
+}) {
+  const draw = useCallback(
+    (g: Graphics) => {
+      g.clear();
+      g.circle(0, 0, 16);
+      if (index < resultsLength) {
+        g.fill(0x27ae60);
+      } else if (index === current) {
+        g.fill(0x667eea);
+      } else {
+        g.fill(0x2a2a4a);
+      }
+    },
+    [index, current, resultsLength],
+  );
+
+  return <pixiGraphics draw={draw} />;
+}
+
 function ProgressDots({
   total,
   current,
@@ -24,23 +51,6 @@ function ProgressDots({
   current: number;
   results: boolean[];
 }) {
-  const refs = useRef<(Graphics | null)[]>([]);
-
-  useEffect(() => {
-    refs.current.forEach((g, i) => {
-      if (!g) return;
-      g.clear();
-      g.circle(0, 0, 16);
-      if (i < results.length) {
-        g.fill(0x27ae60);
-      } else if (i === current) {
-        g.fill(0x667eea);
-      } else {
-        g.fill(0x2a2a4a);
-      }
-    });
-  }, [total, current, results]);
-
   const dotStyle = new TextStyle({
     fontFamily: "Inter, sans-serif",
     fontSize: 14,
@@ -54,11 +64,7 @@ function ProgressDots({
     <pixiContainer y={15}>
       {Array.from({ length: total }, (_, i) => (
         <pixiContainer key={i} x={startX + i * 48} y={0}>
-          <pixiGraphics
-            ref={(el: Graphics | null) => {
-              refs.current[i] = el;
-            }}
-          />
+          <Dot index={i} current={current} resultsLength={results.length} />
           <pixiText
             text={i < results.length ? "✓" : String(i + 1)}
             style={dotStyle}
@@ -77,8 +83,6 @@ function CodeFixPanel({
   task: TaskDef;
   onAnswer: (correct: boolean) => void;
 }) {
-  const codeBgRef = useRef<Graphics>(null);
-
   const drawCodeBg = useCallback((g: Graphics) => {
     g.clear();
     g.roundRect(0, 0, 700, 120, 8);
@@ -86,10 +90,6 @@ function CodeFixPanel({
     g.roundRect(0, 0, 700, 120, 8);
     g.stroke({ color: 0x2a2a4a, width: 1 });
   }, []);
-
-  useEffect(() => {
-    if (codeBgRef.current) drawCodeBg(codeBgRef.current);
-  }, [drawCodeBg]);
 
   const titleStyle = new TextStyle({
     fontFamily: "Inter, sans-serif",
@@ -107,7 +107,7 @@ function CodeFixPanel({
   return (
     <pixiContainer x={150} y={390}>
       <pixiText text={task.title} style={titleStyle} x={0} y={0} />
-      <pixiGraphics ref={codeBgRef} x={0} y={30} />
+      <pixiGraphics draw={drawCodeBg} x={0} y={30} />
       <pixiText text={task.code ?? ""} style={codeStyle} x={16} y={46} />
       {task.options?.map((opt, i) => (
         <PixiButton
@@ -133,8 +133,6 @@ function TerminalPanel({
   task: TaskDef;
   onAnswer: (correct: boolean) => void;
 }) {
-  const promptBgRef = useRef<Graphics>(null);
-
   const drawPromptBg = useCallback((g: Graphics) => {
     g.clear();
     g.roundRect(0, 0, 700, 60, 8);
@@ -142,10 +140,6 @@ function TerminalPanel({
     g.roundRect(0, 0, 700, 60, 8);
     g.stroke({ color: 0x2a2a4a, width: 1 });
   }, []);
-
-  useEffect(() => {
-    if (promptBgRef.current) drawPromptBg(promptBgRef.current);
-  }, [drawPromptBg]);
 
   const titleStyle = new TextStyle({
     fontFamily: "Inter, sans-serif",
@@ -174,7 +168,7 @@ function TerminalPanel({
   return (
     <pixiContainer x={150} y={390}>
       <pixiText text={task.title} style={titleStyle} x={0} y={0} />
-      <pixiGraphics ref={promptBgRef} x={0} y={30} />
+      <pixiGraphics draw={drawPromptBg} x={0} y={30} />
       <pixiText text={task.prompt ?? ""} style={promptStyle} x={16} y={46} />
       <PixiTextInput
         x={0}

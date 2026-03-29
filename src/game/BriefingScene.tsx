@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { extend } from "@pixi/react";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
 import PixiButton from "./PixiButton";
@@ -10,8 +10,6 @@ type BriefingSceneProps = {
 };
 
 export default function BriefingScene({ onAccept }: BriefingSceneProps) {
-  const cardRef = useRef<Graphics>(null);
-
   const drawCard = useCallback((g: Graphics) => {
     g.clear();
     g.roundRect(0, 0, 500, 280, 12);
@@ -19,10 +17,6 @@ export default function BriefingScene({ onAccept }: BriefingSceneProps) {
     g.roundRect(0, 0, 500, 280, 12);
     g.stroke({ color: 0x2a2a4a, width: 1 });
   }, []);
-
-  useEffect(() => {
-    if (cardRef.current) drawCard(cardRef.current);
-  }, [drawCard]);
 
   const titleStyle = new TextStyle({
     fontFamily: "Inter, sans-serif",
@@ -50,7 +44,7 @@ export default function BriefingScene({ onAccept }: BriefingSceneProps) {
 
   return (
     <pixiContainer x={250} y={210}>
-      <pixiGraphics ref={cardRef} />
+      <pixiGraphics draw={drawCard} />
       <pixiText
         text="Hari Ini di Kantor"
         style={titleStyle}

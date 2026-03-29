@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { extend } from "@pixi/react";
 import { Container, Graphics, Text, TextStyle } from "pixi.js";
 
@@ -15,9 +15,6 @@ export default function PunishmentScene({
   dialog,
   onDone,
 }: PunishmentSceneProps) {
-  const overlayRef = useRef<Graphics>(null);
-  const bubbleRef = useRef<Graphics>(null);
-
   const drawOverlay = useCallback((g: Graphics) => {
     g.clear();
     g.rect(0, 350, 1000, 350);
@@ -31,11 +28,6 @@ export default function PunishmentScene({
     g.roundRect(0, 0, 500, 120, 12);
     g.stroke({ color: 0xf97583, width: 2 });
   }, []);
-
-  useEffect(() => {
-    if (overlayRef.current) drawOverlay(overlayRef.current);
-    if (bubbleRef.current) drawBubble(bubbleRef.current);
-  }, [drawOverlay, drawBubble]);
 
   useEffect(() => {
     const timer = setTimeout(onDone, 2000);
@@ -59,9 +51,9 @@ export default function PunishmentScene({
 
   return (
     <pixiContainer>
-      <pixiGraphics ref={overlayRef} />
+      <pixiGraphics draw={drawOverlay} />
       <pixiContainer x={250} y={450}>
-        <pixiGraphics ref={bubbleRef} />
+        <pixiGraphics draw={drawBubble} />
         <pixiText text={`${speaker}:`} style={speakerStyle} x={20} y={20} />
         <pixiText text={`"${dialog}"`} style={dialogStyle} x={20} y={55} />
       </pixiContainer>

@@ -22,7 +22,6 @@ export default function PixiTextInput({
   onSubmit,
 }: PixiTextInputProps) {
   const containerRef = useRef<Container>(null);
-  const bgRef = useRef<Graphics>(null);
   const [value, setValue] = useState("");
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -93,10 +92,6 @@ export default function PixiTextInput({
     [width, height, focused],
   );
 
-  useEffect(() => {
-    if (bgRef.current) drawBg(bgRef.current);
-  }, [drawBg]);
-
   const displayText = value || placeholder;
   const textColor = value ? 0xe6edf3 : 0x484f58;
   const caretBlink = focused && value.length >= 0;
@@ -115,7 +110,7 @@ export default function PixiTextInput({
 
   return (
     <pixiContainer ref={containerRef} x={x} y={y}>
-      <pixiGraphics ref={bgRef} />
+      <pixiGraphics draw={drawBg} />
       <pixiText
         text="> "
         style={caretStyle}
