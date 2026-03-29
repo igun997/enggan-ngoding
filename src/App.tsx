@@ -38,7 +38,12 @@ function reducer(state: GameState, action: GameAction): GameState {
         const newResults = [...state.taskResults, true];
         const nextTask = state.currentTask + 1;
         if (nextTask >= TASKS.length) {
-          return { ...state, screen: "result", result: "win", taskResults: newResults };
+          return {
+            ...state,
+            screen: "result",
+            result: "win",
+            taskResults: newResults,
+          };
         }
         return { ...state, currentTask: nextTask, taskResults: newResults };
       }
@@ -63,7 +68,12 @@ function reducer(state: GameState, action: GameAction): GameState {
 
     case "PUNISHMENT_DONE": {
       if (state.failures >= 3) {
-        return { ...state, screen: "result", result: "fired", punishmentNPC: null };
+        return {
+          ...state,
+          screen: "result",
+          result: "fired",
+          punishmentNPC: null,
+        };
       }
       return { ...state, screen: "task", punishmentNPC: null };
     }
@@ -82,12 +92,9 @@ function reducer(state: GameState, action: GameAction): GameState {
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const handleAnswer = useCallback(
-    (correct: boolean) => {
-      dispatch({ type: "SUBMIT_ANSWER", correct });
-    },
-    [],
-  );
+  const handleAnswer = useCallback((correct: boolean) => {
+    dispatch({ type: "SUBMIT_ANSWER", correct });
+  }, []);
 
   const handlePunishmentDone = useCallback(() => {
     dispatch({ type: "PUNISHMENT_DONE" });
@@ -98,9 +105,7 @@ export default function App() {
       return <Menu onStart={() => dispatch({ type: "START_GAME" })} />;
 
     case "briefing":
-      return (
-        <Briefing onAccept={() => dispatch({ type: "ACCEPT_TICKET" })} />
-      );
+      return <Briefing onAccept={() => dispatch({ type: "ACCEPT_TICKET" })} />;
 
     case "task": {
       const task = TASKS[state.currentTask];
@@ -155,10 +160,7 @@ export default function App() {
             />
           </div>
           <div className="punishment-overlay">
-            <DialogBubble
-              speaker={NPC_NAMES[npc]}
-              text={task.onFail.dialog}
-            />
+            <DialogBubble speaker={NPC_NAMES[npc]} text={task.onFail.dialog} />
           </div>
         </div>
       );

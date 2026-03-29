@@ -14,7 +14,10 @@ export const TASKS: TaskDef[] = [
   gaji = gaji + bonus  // bug: unreachable code
 }`,
     options: [
-      { text: 'Pindahkan "gaji = gaji + bonus" ke sebelum return', correct: true },
+      {
+        text: 'Pindahkan "gaji = gaji + bonus" ke sebelum return',
+        correct: true,
+      },
       { text: 'Hapus "return gaji"', correct: false },
       { text: 'Tambah "console.log(gaji)"', correct: false },
     ],

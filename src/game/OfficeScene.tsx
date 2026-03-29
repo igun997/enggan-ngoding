@@ -68,7 +68,13 @@ function OfficeSceneInner({
     <pixiContainer>
       {/* Background */}
       {textures.bg && (
-        <pixiSprite texture={textures.bg} x={0} y={0} width={1000} height={350} />
+        <pixiSprite
+          texture={textures.bg}
+          x={0}
+          y={0}
+          width={1000}
+          height={350}
+        />
       )}
 
       {/* Monitor */}
