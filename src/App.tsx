@@ -1,4 +1,4 @@
-import { useReducer, useCallback } from "react";
+import { useReducer, useCallback, useEffect } from "react";
 import { Application, extend } from "@pixi/react";
 import { Container, Graphics } from "pixi.js";
 import { GameState, GameAction } from "./types";
@@ -25,6 +25,7 @@ const initialState: GameState = {
   taskResults: [],
   result: null,
   punishmentNPC: null,
+  officePhase: null,
 };
 
 function reducer(state: GameState, action: GameAction): GameState {
@@ -32,7 +33,17 @@ function reducer(state: GameState, action: GameAction): GameState {
     case "START_GAME":
       return { ...initialState, screen: "briefing" };
     case "ACCEPT_TICKET":
-      return { ...initialState, screen: "task" };
+      return {
+        ...initialState,
+        screen: "office",
+        officePhase: "walk-in",
+      };
+    case "OFFICE_READY":
+      return { ...state, officePhase: "idle" };
+    case "CLICK_MONITOR":
+      return { ...state, screen: "task", officePhase: null };
+    case "CLICK_DOOR":
+      return { ...initialState };
     case "SUBMIT_ANSWER": {
       if (action.correct) {
         const newResults = [...state.taskResults, true];
@@ -45,7 +56,13 @@ function reducer(state: GameState, action: GameAction): GameState {
             taskResults: newResults,
           };
         }
-        return { ...state, currentTask: nextTask, taskResults: newResults };
+        return {
+          ...state,
+          screen: "office",
+          officePhase: "idle",
+          currentTask: nextTask,
+          taskResults: newResults,
+        };
       }
       const newFailures = state.failures + 1;
       const task = TASKS[state.currentTask];
@@ -54,6 +71,7 @@ function reducer(state: GameState, action: GameAction): GameState {
         screen: "punishment",
         failures: newFailures,
         punishmentNPC: task.onFail.npc,
+        officePhase: null,
       };
     }
     case "PUNISHMENT_DONE": {
@@ -65,10 +83,18 @@ function reducer(state: GameState, action: GameAction): GameState {
           punishmentNPC: null,
         };
       }
-      return { ...state, screen: "task", punishmentNPC: null };
+      return {
+        ...state,
+        screen: "office",
+        officePhase: "idle",
+        punishmentNPC: null,
+      };
     }
     case "RETRY":
-      return { ...initialState, screen: "briefing" };
+      return {
+        ...initialState,
+        screen: "briefing",
+      };
     case "BACK_TO_MENU":
       return { ...initialState };
     default:
@@ -87,6 +113,18 @@ function GameRoot() {
     dispatch({ type: "PUNISHMENT_DONE" });
   }, []);
 
+  const handleWalkInDone = useCallback(() => {
+    dispatch({ type: "OFFICE_READY" });
+  }, []);
+
+  const handleClickMonitor = useCallback(() => {
+    dispatch({ type: "CLICK_MONITOR" });
+  }, []);
+
+  const handleClickDoor = useCallback(() => {
+    dispatch({ type: "CLICK_DOOR" });
+  }, []);
+
   switch (state.screen) {
     case "menu":
       return <MenuScene onStart={() => dispatch({ type: "START_GAME" })} />;
@@ -96,13 +134,31 @@ function GameRoot() {
         <BriefingScene onAccept={() => dispatch({ type: "ACCEPT_TICKET" })} />
       );
 
+    case "office": {
+      const task = TASKS[state.currentTask];
+      return (
+        <OfficeScene
+          npcsPresent={task.scene.npcsPresent}
+          phase={state.officePhase}
+          hint={task.hint}
+          onWalkInDone={handleWalkInDone}
+          onClickMonitor={handleClickMonitor}
+          onClickDoor={handleClickDoor}
+        />
+      );
+    }
+
     case "task": {
       const task = TASKS[state.currentTask];
       return (
         <pixiContainer>
           <OfficeScene
             npcsPresent={task.scene.npcsPresent}
-            punishmentNPC={null}
+            phase="idle"
+            hint={task.hint}
+            onWalkInDone={() => {}}
+            onClickMonitor={() => {}}
+            onClickDoor={() => {}}
           />
           <TaskScene
             task={task}
@@ -121,12 +177,15 @@ function GameRoot() {
       return (
         <pixiContainer>
           <OfficeScene
-            npcsPresent={[...task.scene.npcsPresent, npc].filter(
-              (v, i, a) => a.indexOf(v) === i,
-            )}
-            punishmentNPC={npc}
+            npcsPresent={task.scene.npcsPresent}
+            phase="idle"
+            hint={task.hint}
+            onWalkInDone={() => {}}
+            onClickMonitor={() => {}}
+            onClickDoor={() => {}}
           />
           <PunishmentScene
+            npc={npc}
             speaker={NPC_NAMES[npc]}
             dialog={task.onFail.dialog}
             onDone={handlePunishmentDone}
@@ -146,7 +205,26 @@ function GameRoot() {
   }
 }
 
+function useResponsiveScale() {
+  useEffect(() => {
+    const resize = () => {
+      const app = document.getElementById("app");
+      if (!app) return;
+      const scale = Math.min(
+        window.innerWidth / 1000,
+        window.innerHeight / 700,
+      );
+      app.style.transform = `scale(${scale})`;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
+}
+
 export default function App() {
+  useResponsiveScale();
+
   return (
     <Application
       background="#0a0a0a"

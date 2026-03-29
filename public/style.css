@@ -7,17 +7,19 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #0a0a0a;
+  background-color: #000;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  width: 100vw;
 }
 
 #app {
   width: 1000px;
   height: 700px;
+  transform-origin: center center;
 }
 
 canvas {
