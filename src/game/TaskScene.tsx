@@ -76,6 +76,15 @@ function ProgressDots({
   );
 }
 
+function TaskBackground() {
+  const draw = useCallback((g: Graphics) => {
+    g.clear();
+    g.rect(0, 350, 1000, 350);
+    g.fill(0x0a0a0a);
+  }, []);
+  return <pixiGraphics draw={draw} />;
+}
+
 function CodeFixPanel({
   task,
   onAnswer,
@@ -85,41 +94,41 @@ function CodeFixPanel({
 }) {
   const drawCodeBg = useCallback((g: Graphics) => {
     g.clear();
-    g.roundRect(0, 0, 700, 120, 8);
+    g.roundRect(0, 0, 700, 100, 8);
     g.fill(0x0d1117);
-    g.roundRect(0, 0, 700, 120, 8);
+    g.roundRect(0, 0, 700, 100, 8);
     g.stroke({ color: 0x2a2a4a, width: 1 });
   }, []);
 
   const titleStyle = new TextStyle({
     fontFamily: "Inter, sans-serif",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     fill: 0xe0e0e0,
   });
 
   const codeStyle = new TextStyle({
     fontFamily: "JetBrains Mono, monospace",
-    fontSize: 13,
+    fontSize: 12,
     fill: 0xe6edf3,
   });
 
   return (
-    <pixiContainer x={150} y={390}>
+    <pixiContainer x={150} y={360}>
       <pixiText text={task.title} style={titleStyle} x={0} y={0} />
-      <pixiGraphics draw={drawCodeBg} x={0} y={30} />
-      <pixiText text={task.code ?? ""} style={codeStyle} x={16} y={46} />
+      <pixiGraphics draw={drawCodeBg} x={0} y={24} />
+      <pixiText text={task.code ?? ""} style={codeStyle} x={12} y={34} />
       {task.options?.map((opt, i) => (
         <PixiButton
           key={i}
           x={0}
-          y={160 + i * 50}
+          y={132 + i * 44}
           width={700}
-          height={40}
+          height={36}
           label={`${String.fromCharCode(65 + i)}) ${opt.text}`}
           onClick={() => onAnswer(opt.correct)}
           variant="secondary"
-          fontSize={13}
+          fontSize={12}
         />
       ))}
     </pixiContainer>
@@ -166,13 +175,13 @@ function TerminalPanel({
   );
 
   return (
-    <pixiContainer x={150} y={390}>
+    <pixiContainer x={150} y={360}>
       <pixiText text={task.title} style={titleStyle} x={0} y={0} />
-      <pixiGraphics draw={drawPromptBg} x={0} y={30} />
-      <pixiText text={task.prompt ?? ""} style={promptStyle} x={16} y={46} />
+      <pixiGraphics draw={drawPromptBg} x={0} y={24} />
+      <pixiText text={task.prompt ?? ""} style={promptStyle} x={12} y={34} />
       <PixiTextInput
         x={0}
-        y={110}
+        y={100}
         width={700}
         height={44}
         placeholder="Ketik command..."
@@ -191,6 +200,7 @@ export default function TaskScene({
 }: TaskSceneProps) {
   return (
     <pixiContainer>
+      <TaskBackground />
       <ProgressDots total={totalTasks} current={taskIndex} results={results} />
       {task.type === "code-fix" && task.code && task.options && (
         <CodeFixPanel task={task} onAnswer={onAnswer} />
