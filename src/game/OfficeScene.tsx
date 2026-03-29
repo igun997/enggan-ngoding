@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { extend } from "@pixi/react";
 import { Container, Sprite, Texture, Assets } from "pixi.js";
 import { PunishmentNPC, OfficePhase } from "../types";
