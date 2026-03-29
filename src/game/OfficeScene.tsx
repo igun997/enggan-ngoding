@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Application, extend } from "@pixi/react";
+import { extend } from "@pixi/react";
 import { Container, Sprite, Texture, Assets } from "pixi.js";
 import { PunishmentNPC } from "../types";
 
@@ -8,7 +8,6 @@ extend({ Container, Sprite });
 type OfficeSceneProps = {
   npcsPresent: PunishmentNPC[];
   punishmentNPC: PunishmentNPC | null;
-  onPunishmentAnimDone: () => void;
 };
 
 const NPC_TEXTURES: Record<string, string> = {
@@ -26,10 +25,9 @@ const NPC_POSITIONS: Record<string, { x: number; y: number }> = {
   alif: { x: 650, y: 260 },
 };
 
-function OfficeSceneInner({
+export default function OfficeScene({
   npcsPresent,
   punishmentNPC,
-  onPunishmentAnimDone,
 }: OfficeSceneProps) {
   const [textures, setTextures] = useState<Record<string, Texture>>({});
 
@@ -57,16 +55,8 @@ function OfficeSceneInner({
     });
   }, [npcsPresent, punishmentNPC]);
 
-  // Trigger punishment animation end after delay
-  useEffect(() => {
-    if (!punishmentNPC) return;
-    const timer = setTimeout(onPunishmentAnimDone, 2000);
-    return () => clearTimeout(timer);
-  }, [punishmentNPC, onPunishmentAnimDone]);
-
   return (
     <pixiContainer>
-      {/* Background */}
       {textures.bg && (
         <pixiSprite
           texture={textures.bg}
@@ -76,8 +66,6 @@ function OfficeSceneInner({
           height={350}
         />
       )}
-
-      {/* Monitor */}
       {textures.monitor && (
         <pixiSprite
           texture={textures.monitor}
@@ -87,8 +75,6 @@ function OfficeSceneInner({
           height={96}
         />
       )}
-
-      {/* Angga */}
       {textures.angga && (
         <pixiSprite
           texture={textures.angga}
@@ -99,8 +85,6 @@ function OfficeSceneInner({
           height={64}
         />
       )}
-
-      {/* NPCs */}
       {npcsPresent.map((npc) => {
         const isActing = punishmentNPC === npc;
         const texKey = isActing ? `${npc}-action` : npc;
@@ -121,18 +105,5 @@ function OfficeSceneInner({
         );
       })}
     </pixiContainer>
-  );
-}
-
-export default function OfficeScene(props: OfficeSceneProps) {
-  return (
-    <Application
-      background="#1a1a2e"
-      resizeTo={undefined}
-      width={1000}
-      height={350}
-    >
-      <OfficeSceneInner {...props} />
-    </Application>
   );
 }

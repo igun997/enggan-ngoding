@@ -1,14 +1,16 @@
 import { useReducer, useCallback } from "react";
+import { Application, extend } from "@pixi/react";
+import { Container, Graphics } from "pixi.js";
 import { GameState, GameAction } from "./types";
 import { TASKS } from "./data/TaskData";
-import Menu from "./ui/Menu";
-import Briefing from "./ui/Briefing";
-import TaskProgress from "./ui/TaskProgress";
-import CodeFixTask from "./ui/CodeFixTask";
-import TerminalTask from "./ui/TerminalTask";
-import DialogBubble from "./ui/DialogBubble";
-import Result from "./ui/Result";
+import MenuScene from "./game/MenuScene";
+import BriefingScene from "./game/BriefingScene";
+import TaskScene from "./game/TaskScene";
 import OfficeScene from "./game/OfficeScene";
+import PunishmentScene from "./game/PunishmentScene";
+import ResultScene from "./game/ResultScene";
+
+extend({ Container, Graphics });
 
 const NPC_NAMES: Record<string, string> = {
   ohim: "Ohim",
@@ -29,10 +31,8 @@ function reducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START_GAME":
       return { ...initialState, screen: "briefing" };
-
     case "ACCEPT_TICKET":
       return { ...initialState, screen: "task" };
-
     case "SUBMIT_ANSWER": {
       if (action.correct) {
         const newResults = [...state.taskResults, true];
@@ -47,17 +47,8 @@ function reducer(state: GameState, action: GameAction): GameState {
         }
         return { ...state, currentTask: nextTask, taskResults: newResults };
       }
-      // Wrong answer
       const newFailures = state.failures + 1;
       const task = TASKS[state.currentTask];
-      if (newFailures >= 3) {
-        return {
-          ...state,
-          screen: "punishment",
-          failures: newFailures,
-          punishmentNPC: task.onFail.npc,
-        };
-      }
       return {
         ...state,
         screen: "punishment",
@@ -65,7 +56,6 @@ function reducer(state: GameState, action: GameAction): GameState {
         punishmentNPC: task.onFail.npc,
       };
     }
-
     case "PUNISHMENT_DONE": {
       if (state.failures >= 3) {
         return {
@@ -77,19 +67,16 @@ function reducer(state: GameState, action: GameAction): GameState {
       }
       return { ...state, screen: "task", punishmentNPC: null };
     }
-
     case "RETRY":
       return { ...initialState, screen: "briefing" };
-
     case "BACK_TO_MENU":
       return { ...initialState };
-
     default:
       return state;
   }
 }
 
-export default function App() {
+function GameRoot() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const handleAnswer = useCallback((correct: boolean) => {
@@ -102,46 +89,29 @@ export default function App() {
 
   switch (state.screen) {
     case "menu":
-      return <Menu onStart={() => dispatch({ type: "START_GAME" })} />;
+      return <MenuScene onStart={() => dispatch({ type: "START_GAME" })} />;
 
     case "briefing":
-      return <Briefing onAccept={() => dispatch({ type: "ACCEPT_TICKET" })} />;
+      return (
+        <BriefingScene onAccept={() => dispatch({ type: "ACCEPT_TICKET" })} />
+      );
 
     case "task": {
       const task = TASKS[state.currentTask];
       return (
-        <div className="game-layout">
-          <TaskProgress
-            total={TASKS.length}
-            current={state.currentTask}
-            results={state.taskResults}
+        <pixiContainer>
+          <OfficeScene
+            npcsPresent={task.scene.npcsPresent}
+            punishmentNPC={null}
           />
-          <div className="scene-area">
-            <OfficeScene
-              npcsPresent={task.scene.npcsPresent}
-              punishmentNPC={null}
-              onPunishmentAnimDone={() => {}}
-            />
-          </div>
-          <div className="task-area">
-            {task.type === "code-fix" && task.code && task.options && (
-              <CodeFixTask
-                title={task.title}
-                code={task.code}
-                options={task.options}
-                onAnswer={handleAnswer}
-              />
-            )}
-            {task.type === "terminal" && task.prompt && task.correctAnswer && (
-              <TerminalTask
-                title={task.title}
-                prompt={task.prompt}
-                correctAnswer={task.correctAnswer}
-                onAnswer={handleAnswer}
-              />
-            )}
-          </div>
-        </div>
+          <TaskScene
+            task={task}
+            taskIndex={state.currentTask}
+            totalTasks={TASKS.length}
+            results={state.taskResults}
+            onAnswer={handleAnswer}
+          />
+        </pixiContainer>
       );
     }
 
@@ -149,30 +119,42 @@ export default function App() {
       const task = TASKS[state.currentTask];
       const npc = state.punishmentNPC!;
       return (
-        <div className="game-layout">
-          <div className="scene-area">
-            <OfficeScene
-              npcsPresent={[...task.scene.npcsPresent, npc].filter(
-                (v, i, a) => a.indexOf(v) === i,
-              )}
-              punishmentNPC={npc}
-              onPunishmentAnimDone={handlePunishmentDone}
-            />
-          </div>
-          <div className="punishment-overlay">
-            <DialogBubble speaker={NPC_NAMES[npc]} text={task.onFail.dialog} />
-          </div>
-        </div>
+        <pixiContainer>
+          <OfficeScene
+            npcsPresent={[...task.scene.npcsPresent, npc].filter(
+              (v, i, a) => a.indexOf(v) === i,
+            )}
+            punishmentNPC={npc}
+          />
+          <PunishmentScene
+            speaker={NPC_NAMES[npc]}
+            dialog={task.onFail.dialog}
+            onDone={handlePunishmentDone}
+          />
+        </pixiContainer>
       );
     }
 
     case "result":
       return (
-        <Result
+        <ResultScene
           result={state.result}
           onRetry={() => dispatch({ type: "RETRY" })}
           onMenu={() => dispatch({ type: "BACK_TO_MENU" })}
         />
       );
   }
+}
+
+export default function App() {
+  return (
+    <Application
+      background="#0a0a0a"
+      resizeTo={undefined}
+      width={1000}
+      height={700}
+    >
+      <GameRoot />
+    </Application>
+  );
 }
