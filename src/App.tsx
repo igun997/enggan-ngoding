@@ -1,79 +1,79 @@
 import { useReducer, useCallback } from "react";
 import { GameState, GameAction } from "./types";
-import { LEVEL_1 } from "./engine/LevelData";
-import { processPrompt } from "./engine/HallucinationEngine";
+import { TASKS } from "./data/TaskData";
 import Menu from "./ui/Menu";
 import Briefing from "./ui/Briefing";
-import HUD from "./ui/HUD";
-import Terminal from "./ui/Terminal";
+import TaskProgress from "./ui/TaskProgress";
+import CodeFixTask from "./ui/CodeFixTask";
+import TerminalTask from "./ui/TerminalTask";
+import DialogBubble from "./ui/DialogBubble";
 import Result from "./ui/Result";
-import GameWorld from "./game/GameWorld";
+import OfficeScene from "./game/OfficeScene";
 
-let terminalIdCounter = 0;
+const NPC_NAMES: Record<string, string> = {
+  ohim: "Ohim",
+  aris: "Mang Aris",
+  alif: "Mang Alif",
+};
 
 const initialState: GameState = {
   screen: "menu",
-  coffee: 100,
-  timeLeft: LEVEL_1.timerSeconds,
-  terminalLog: [],
-  currentAction: null,
+  currentTask: 0,
+  failures: 0,
+  taskResults: [],
   result: null,
-  isProcessing: false,
-  characterX: 10,
-  flagX: 85,
+  punishmentNPC: null,
 };
 
 function reducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "START_GAME":
-      return { ...state, screen: "briefing" };
+      return { ...initialState, screen: "briefing" };
+
     case "ACCEPT_TICKET":
-      return {
-        ...initialState,
-        screen: "playing",
-        terminalLog: [
-          {
-            id: ++terminalIdCounter,
-            type: "system",
-            text: `📋 ${LEVEL_1.objective}`,
-          },
-          {
-            id: ++terminalIdCounter,
-            type: "system",
-            text: "Ketik prompt untuk mengendalikan karakter...",
-          },
-        ],
-      };
-    case "SET_PROCESSING":
-      return { ...state, isProcessing: action.isProcessing };
-    case "ADD_TERMINAL":
-      return {
-        ...state,
-        terminalLog: [
-          ...state.terminalLog,
-          { ...action.entry, id: ++terminalIdCounter },
-        ],
-      };
-    case "SUBMIT_PROMPT":
+      return { ...initialState, screen: "task" };
+
+    case "SUBMIT_ANSWER": {
+      if (action.correct) {
+        const newResults = [...state.taskResults, true];
+        const nextTask = state.currentTask + 1;
+        if (nextTask >= TASKS.length) {
+          return { ...state, screen: "result", result: "win", taskResults: newResults };
+        }
+        return { ...state, currentTask: nextTask, taskResults: newResults };
+      }
+      // Wrong answer
+      const newFailures = state.failures + 1;
+      const task = TASKS[state.currentTask];
+      if (newFailures >= 3) {
+        return {
+          ...state,
+          screen: "punishment",
+          failures: newFailures,
+          punishmentNPC: task.onFail.npc,
+        };
+      }
       return {
         ...state,
-        coffee: Math.max(0, state.coffee - action.coffeeCost),
+        screen: "punishment",
+        failures: newFailures,
+        punishmentNPC: task.onFail.npc,
       };
-    case "EXECUTE_ACTION":
-      return { ...state, currentAction: action.action };
-    case "TICK_TIMER":
-      return { ...state, timeLeft: Math.max(0, state.timeLeft - 1) };
-    case "UPDATE_CHARACTER_X":
-      return { ...state, characterX: action.x };
-    case "SET_RESULT":
-      return { ...state, screen: "result", result: action.result };
+    }
+
+    case "PUNISHMENT_DONE": {
+      if (state.failures >= 3) {
+        return { ...state, screen: "result", result: "fired", punishmentNPC: null };
+      }
+      return { ...state, screen: "task", punishmentNPC: null };
+    }
+
     case "RETRY":
-      return {
-        ...initialState,
-        screen: "briefing",
-      };
+      return { ...initialState, screen: "briefing" };
+
     case "BACK_TO_MENU":
       return { ...initialState };
+
     default:
       return state;
   }
@@ -82,108 +82,88 @@ function reducer(state: GameState, action: GameAction): GameState {
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const handlePromptSubmit = useCallback(
-    async (input: string) => {
-      if (state.isProcessing) return;
-
-      // Add player's prompt to terminal
-      dispatch({
-        type: "ADD_TERMINAL",
-        entry: { type: "player", text: `> ${input}` },
-      });
-
-      // Deduct coffee
-      dispatch({
-        type: "SUBMIT_PROMPT",
-        action: processPrompt(input, LEVEL_1, state.coffee),
-        coffeeCost: LEVEL_1.coffeeCost,
-      });
-
-      // Show thinking
-      dispatch({ type: "SET_PROCESSING", isProcessing: true });
-      dispatch({
-        type: "ADD_TERMINAL",
-        entry: { type: "system", text: "AI sedang berpikir..." },
-      });
-
-      // Fake delay
-      await new Promise((r) => setTimeout(r, 1000));
-
-      // Process
-      const action = processPrompt(input, LEVEL_1, state.coffee);
-
-      // Show AI response
-      dispatch({
-        type: "ADD_TERMINAL",
-        entry: {
-          type: action.hallucinated ? "error" : "ai",
-          text: action.flavor,
-        },
-      });
-
-      // Execute
-      dispatch({ type: "EXECUTE_ACTION", action });
-      dispatch({ type: "SET_PROCESSING", isProcessing: false });
+  const handleAnswer = useCallback(
+    (correct: boolean) => {
+      dispatch({ type: "SUBMIT_ANSWER", correct });
     },
-    [state.isProcessing, state.coffee],
+    [],
   );
 
-  const handleWin = useCallback(() => {
-    dispatch({ type: "SET_RESULT", result: "win" });
-  }, []);
-
-  const handleTimerTick = useCallback(() => {
-    dispatch({ type: "TICK_TIMER" });
-  }, []);
-
-  const handleCharacterMove = useCallback((x: number) => {
-    dispatch({ type: "UPDATE_CHARACTER_X", x });
+  const handlePunishmentDone = useCallback(() => {
+    dispatch({ type: "PUNISHMENT_DONE" });
   }, []);
 
   switch (state.screen) {
     case "menu":
       return <Menu onStart={() => dispatch({ type: "START_GAME" })} />;
+
     case "briefing":
       return (
-        <Briefing
-          level={LEVEL_1}
-          onAccept={() => dispatch({ type: "ACCEPT_TICKET" })}
-        />
+        <Briefing onAccept={() => dispatch({ type: "ACCEPT_TICKET" })} />
       );
-    case "playing":
+
+    case "task": {
+      const task = TASKS[state.currentTask];
       return (
         <div className="game-layout">
-          <HUD
-            coffee={state.coffee}
-            timeLeft={state.timeLeft}
-            levelTitle={LEVEL_1.title}
-            onTimerTick={handleTimerTick}
-            onTimeUp={() =>
-              dispatch({ type: "SET_RESULT", result: "lose-time" })
-            }
-            onCoffeeEmpty={() =>
-              dispatch({ type: "SET_RESULT", result: "lose-coffee" })
-            }
+          <TaskProgress
+            total={TASKS.length}
+            current={state.currentTask}
+            results={state.taskResults}
           />
-          <div className="game-main">
-            <div className="game-left">
-              <GameWorld
-                currentAction={state.currentAction}
-                characterX={state.characterX}
-                flagX={state.flagX}
-                onCharacterMove={handleCharacterMove}
-                onWin={handleWin}
+          <div className="scene-area">
+            <OfficeScene
+              npcsPresent={task.scene.npcsPresent}
+              punishmentNPC={null}
+              onPunishmentAnimDone={() => {}}
+            />
+          </div>
+          <div className="task-area">
+            {task.type === "code-fix" && task.code && task.options && (
+              <CodeFixTask
+                title={task.title}
+                code={task.code}
+                options={task.options}
+                onAnswer={handleAnswer}
               />
-              <div className="objective-bar">📋 {LEVEL_1.objective}</div>
-            </div>
-            <Terminal
-              log={state.terminalLog}
-              onSubmit={handlePromptSubmit}
-              isProcessing={state.isProcessing}
+            )}
+            {task.type === "terminal" && task.prompt && task.correctAnswer && (
+              <TerminalTask
+                title={task.title}
+                prompt={task.prompt}
+                correctAnswer={task.correctAnswer}
+                onAnswer={handleAnswer}
+              />
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    case "punishment": {
+      const task = TASKS[state.currentTask];
+      const npc = state.punishmentNPC!;
+      return (
+        <div className="game-layout">
+          <div className="scene-area">
+            <OfficeScene
+              npcsPresent={[...task.scene.npcsPresent, npc].filter(
+                (v, i, a) => a.indexOf(v) === i,
+              )}
+              punishmentNPC={npc}
+              onPunishmentAnimDone={handlePunishmentDone}
+            />
+          </div>
+          <div className="punishment-overlay">
+            <DialogBubble
+              speaker={NPC_NAMES[npc]}
+              text={task.onFail.dialog}
             />
           </div>
         </div>
       );
+    }
+
     case "result":
       return (
         <Result
